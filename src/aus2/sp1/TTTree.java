@@ -24,7 +24,7 @@ public class TTTree<T extends Comparable<T>>{
         }     
         
         if (this.find(root, paData) == null) {
-            TreeNode<T> node = this.findLeafNode(root, paData);
+            TreeNode<T> node = this.findLeafNode( paData);
             if (node == null) {
                 System.out.println("pass");
             }
@@ -46,9 +46,9 @@ public class TTTree<T extends Comparable<T>>{
                 return true;
             }         
             else {
-                TreeNode<T> helpLeft = null;
-                TreeNode<T> helpRight = null;
-                TreeNode<T> helpMid = null;
+                boolean fromR = false;
+                boolean fromL = false;
+                boolean fromM = false;
                 while (node != null)
                 {
                     T min = null;
@@ -90,24 +90,46 @@ public class TTTree<T extends Comparable<T>>{
                     
                     TreeNode<T> nodeLeft = new TreeNode<T>(min, null);   
                     TreeNode<T> nodeRight = new TreeNode<T>(max, null);
+                   TreeNode<T> nodeMid = new TreeNode<T>(mid, null);   
                    
-                    /*if (paData == min && helpMid != null) {
-                        nodeLeft = helpMid;
-                        helpMid = null;
+                   
+                    if (fromR) {
+                        nodeRight.setRightSon(node.getRightSon().getRightSon());
+                        nodeRight.setLeftSon(node.getRightSon().getLeftSon());
+                        nodeRight.getRightSon().setParent(nodeRight);
+                        nodeRight.getLeftSon().setParent(nodeRight);
                         
-                    
-                    }*/
-                    
-                   /* if (helpRight != null) {
-                        nodeRight = helpRight;
-                        nodeRight.setLeftData(nodeRight.getRightData());
-                        nodeRight.setRightData(null);
-                        nodeRight.setLeftSon(nodeRight.getCenterSon());
-                        nodeRight.setCenterSon(null);
-                        nodeRight.setParent(helpMid);
-                        System.out.println("Pas");
-                        helpRight = null;
-                    }*/
+                        nodeLeft.setLeftSon(node.getLeftSon());
+                        nodeLeft.setRightSon(node.getCenterSon());
+                        nodeLeft.getLeftSon().setParent(nodeLeft);
+                        nodeLeft.getRightSon().setParent(nodeLeft);
+                        
+                    }
+                    else if (fromM) {
+                        nodeRight.setRightSon(node.getRightSon());
+                        nodeRight.setLeftSon(node.getCenterSon().getRightSon());
+                        nodeRight.getRightSon().setParent(nodeRight);
+                        nodeRight.getLeftSon().setParent(nodeRight);
+                        
+                        nodeLeft.setRightSon(node.getCenterSon().getLeftSon());
+                        nodeLeft.setLeftSon(node.getLeftSon());
+                        nodeLeft.getRightSon().setParent(nodeLeft);
+                        nodeLeft.getLeftSon().setParent(nodeLeft);
+                    }
+                    else if (fromL) {
+                        nodeRight.setRightSon(node.getRightSon());
+                        nodeRight.setLeftSon(node.getCenterSon());
+                        nodeRight.getRightSon().setParent(nodeRight);
+                        nodeRight.getLeftSon().setParent(nodeRight);
+                        
+                        nodeLeft.setLeftSon(node.getLeftSon().getLeftSon());
+                        nodeLeft.setRightSon(node.getLeftSon().getRightSon());
+                        nodeLeft.getRightSon().setParent(nodeLeft);
+                        nodeLeft.getLeftSon().setParent(nodeLeft);
+                        
+                        
+                        
+                    }
                        
                     if (node == root) {      
                         root = new TreeNode<T>(mid, null); 
@@ -121,24 +143,54 @@ public class TTTree<T extends Comparable<T>>{
                     else 
                     {         
                         if (!node.getParent().isThreeNode) {
-                            node.getParent().setRightData(mid);
-                            node.getParent().setCenterSon(nodeLeft);
-                            node.getParent().setRightSon(nodeRight);
-                            nodeLeft.setParent(node.getParent());
-                            nodeRight.setParent(node.getParent());
+                            if (node.getParent().getLeftData().compareTo(mid) == 1) {
+                                T ll = node.getParent().getLeftData();
+                                node.getParent().setLeftData(mid);
+                                node.getParent().setRightData(ll);
+                                node.getParent().setLeftSon(nodeLeft);
+                                node.getParent().setCenterSon(nodeRight);
+                                nodeLeft.setParent(node.getParent());
+                                nodeRight.setParent(node.getParent());                                
+                            }
+                            else 
+                            {
+                                node.getParent().setRightData(mid);
+                                node.getParent().setCenterSon(nodeLeft);
+                                node.getParent().setRightSon(nodeRight);
+                                nodeLeft.setParent(node.getParent());
+                                nodeRight.setParent(node.getParent());
+                            }      
                             node.getParent().setIsThreeNode(true);                             
                             return true;
                         }
                         else {     
-                            TreeNode<T> nodeMid = new TreeNode<T>(mid, null);                            
+                                                     
                             nodeMid.setLeftSon(nodeLeft);
                             nodeMid.setRightSon(nodeRight);
                             nodeLeft.setParent(nodeMid);
                             nodeRight.setParent(nodeMid); 
-                            node = node.getParent();                             
+                            nodeMid.setParent(node.getParent());
+                                   
+                            
                             paData = nodeMid.getLeftData();                            
-                            helpMid = nodeMid;
-                            helpRight = node;
+                            
+                            if (mid.compareTo(node.getParent().getRightData()) == 1) {
+                                fromR = true;
+                                node.getParent().setRightSon(nodeMid);
+                            }
+                            else if (mid.compareTo(node.getParent().getRightData()) == -1 && mid.compareTo(node.getParent().getLeftData()) == 1) {
+                                
+                                fromM = true;
+                                node.getParent().setCenterSon(nodeMid);
+                            }
+                            else if (mid.compareTo(node.getParent().getLeftData()) == -1) {
+                                fromL = true;
+                                node.getParent().setLeftSon(nodeMid);
+                                        
+                            }
+                            
+                            node = node.getParent();   
+                            
                         }
                     }
                 }
@@ -150,8 +202,7 @@ public class TTTree<T extends Comparable<T>>{
         return false;
     }
     
-    
-    public TreeNode<T>  find(TreeNode<T> paNode, T paData) {
+   public TreeNode<T>  find(TreeNode<T> paNode, T paData) {
         
         TreeNode<T> temp = paNode;        
         while(temp != null) {            
@@ -174,33 +225,33 @@ public class TTTree<T extends Comparable<T>>{
         return temp;
     }
     
-    public TreeNode<T> findLeafNode(TreeNode<T> paNode, T paData) {  
+    public TreeNode<T> findLeafNode( T paData) {  
         
-        TreeNode<T> temp = paNode;        
+        TreeNode<T> temp = root;        
         while(temp != null) {
             
-            if (temp.getLeftSon() == null && temp.getRightSon() == null) {                
+            if (temp.getLeftSon() == null && temp.getRightSon() == null && temp.getCenterSon() == null) {                
                 return temp;
             }        
             else if (temp.getLeftData() != null && paData.compareTo(temp.getLeftData()) == -1) {
                 temp = temp.getLeftSon();                               
-            }       
-            else if (paData.compareTo(temp.getLeftData()) == 1) {
-                temp = temp.getRightSon();
-            }
-            else if (temp.isThreeNode && paData.compareTo(temp.getLeftData()) == 1 && paData.compareTo(temp.getRightData()) == -1) {
+            }    
+            else if (temp.isIsThreeNode() && paData.compareTo(temp.getLeftData()) == 1 && paData.compareTo(temp.getRightData()) == -1) {
                 temp = temp.getCenterSon();
             }
+            else if (temp.getLeftData() != null && paData.compareTo(temp.getLeftData()) == 1) {
+                temp = temp.getRightSon();
+            }            
             else if (temp.getRightData() != null && paData.compareTo(temp.getRightData()) == 1 ) {                
                 temp = temp.getRightSon();
             }                        
         }        
         return temp;
-    }  
+    }    
     
     
     public boolean delete (T paData) {
-         TreeNode<T> node = this.findLeafNode(root, paData);
+         TreeNode<T> node = this.findLeafNode( paData);
          
         if (node != null) {
             if (node.isLeaf() && node == root) {
