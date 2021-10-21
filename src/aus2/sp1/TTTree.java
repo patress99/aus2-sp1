@@ -108,19 +108,20 @@ public class TTTree<T extends Comparable<T>>{
                     else if (fromM) {
                         nodeRight.setRightSon(node.getRightSon());
                         nodeRight.setLeftSon(node.getCenterSon().getRightSon());
-                        nodeRight.getRightSon().setParent(nodeRight);
                         nodeRight.getLeftSon().setParent(nodeRight);
+                        nodeRight.getRightSon().setParent(nodeRight);                       
                         
                         nodeLeft.setRightSon(node.getCenterSon().getLeftSon());
                         nodeLeft.setLeftSon(node.getLeftSon());
-                        nodeLeft.getRightSon().setParent(nodeLeft);
                         nodeLeft.getLeftSon().setParent(nodeLeft);
+                        nodeLeft.getRightSon().setParent(nodeLeft);
+                        
                     }
                     else if (fromL) {
                         nodeRight.setRightSon(node.getRightSon());
                         nodeRight.setLeftSon(node.getCenterSon());
-                        nodeRight.getRightSon().setParent(nodeRight);
                         nodeRight.getLeftSon().setParent(nodeRight);
+                        nodeRight.getRightSon().setParent(nodeRight);                       
                         
                         nodeLeft.setLeftSon(node.getLeftSon().getLeftSon());
                         nodeLeft.setRightSon(node.getLeftSon().getRightSon());
@@ -169,8 +170,7 @@ public class TTTree<T extends Comparable<T>>{
                             nodeMid.setRightSon(nodeRight);
                             nodeLeft.setParent(nodeMid);
                             nodeRight.setParent(nodeMid); 
-                            nodeMid.setParent(node.getParent());
-                                   
+                            nodeMid.setParent(node.getParent());                                  
                             
                             paData = nodeMid.getLeftData();                            
                             
